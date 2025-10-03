@@ -14,7 +14,7 @@
       {% for petition in petitions %}
         <li style="margin-bottom: 1rem;">
           <a href="{% url 'movies.petition_details' petition.id %}">{{ petition.movie_name }}</a>
-          - by {{ petition.user }} ({{ petition.votes.count }} votes)
+          - by {{ petition.user }} on {{ petition.date }} ({{ petition.votes.count }} votes)
         </li>
       {% empty %}
         <li>No petitions yet.</li>
