@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div style="text-align: center;">
+    <h1>Movie Petitions</h1>
+    <a href="{% url 'movies.petition_create' %}">Create Petition</a>
+  </div>
+  
+  <hr>
+
+  <div style="display: flex; justify-content: center;">
+
+    <ul style="list-style-type: none; padding: 0;">
+      {% for petition in petitions %}
+        <li style="margin-bottom: 1rem;">
+          <a href="{% url 'movies.petition_details' petition.id %}">{{ petition.movie_name }}</a>
+          - by {{ petition.user }} ({{ petition.votes.count }} votes)
+        </li>
+      {% empty %}
+        <li>No petitions yet.</li>
+      {% endfor %}
+    </ul>
+    
+  </div>
+{% endblock %}

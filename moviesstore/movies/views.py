@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Movie, Review
+from .models import Petition, PetitionVote
+from .forms import PetitionForm
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 
 def index(request):
     search_term = request.GET.get('search')
@@ -61,3 +64,43 @@ def delete_review(request, id, review_id):
     review = get_object_or_404(Review, id=review_id, user=request.user)
     review.delete()
     return redirect('movies.show', id=id)
+
+#petition
+@login_required
+def petition_listings(request):
+    petitions = Petition.objects.all().order_by('-date')
+    return render(request, 'movies/petition_listings.html', {'petitions': petitions})
+
+@login_required
+def petition_create(request):
+    if request.method == 'POST':
+        form = PetitionForm(request.POST)
+        if form.is_valid():
+            petition = form.save(commit=False)
+            petition.creator = request.user
+            petition.save()
+            return redirect('movies.petition_listings')
+    else:
+        form = PetitionForm()
+    return render(request, 'movies/petition_create.html', {'form': form})
+
+def petition_details(request, petition_id):
+    petition = get_object_or_404(Petition, id=petition_id)
+    votes_count = petition.votes.count()
+    user_voted = False
+    if request.user.is_authenticated:
+        user_voted = PetitionVote.objects.filter(petition=petition, user=request.user).exists()
+    return render(request, 'movies/petition_details.html', {
+        'petition': petition,
+        'votes_count': votes_count,
+        'user_voted': user_voted
+    })
+
+@login_required
+def petition_vote(request, petition_id):
+    petition = get_object_or_404(Petition, id=petition_id)
+    if PetitionVote.objects.filter(petition=petition, user=request.user).exists():
+        return HttpResponseForbidden('You have already voted for this petition.')
+    PetitionVote.objects.create(petition=petition, user=request.user)
+    return redirect('movies.petition_details', petition_id=petition.id)
+  

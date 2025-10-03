@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="text-align: center;">
+<h1>Create A Movie Petition</h1>
+<hr>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Create Petition</button>
+</form>
+<a href="{% url 'movies.petition_listings' %}">Back to Petitions</a>
+</div>
+{% endblock %}
